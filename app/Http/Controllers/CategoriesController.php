@@ -31,8 +31,8 @@ class CategoriesController extends Controller
              // $categories = Categories::where('parent', null)->orderby('name', 'asc')->get();
 
 
-            $categories = Categories::orderby('name', 'asc')->get();
-            $categories_main = Categories::pluck('is_main', 'id');   
+             $categories = Categories::where('parent', null)->orderby('name', 'asc')->get();
+             $categories_main = Categories::pluck('is_main', 'id');   
             
 
             return view('categories.index', compact('ldms_expired_documents_all', 'ldms_close_expired_documents_all', 'categories', 'categories_main'));
@@ -41,22 +41,16 @@ class CategoriesController extends Controller
 
     public function store(Request $request)
     {
-        $add = new Categories();
+        $this->validate($request, [
+            'name'      => 'required',
+            'slug'      => 'required|unique:categories',
+            'parent' => 'nullable|numeric'
+        ]);
 
+        $add = new Categories();
         $add->name = htmlspecialchars($request->name);
+        $add->slug = htmlspecialchars($request->slug);
         $add->parent = $request->parent;
-        
-        if ($request->parent == ''){
-        
-        $add->is_main = '1';              
-             
-         } else{
-             
-              $add->is_main = '2';       
-         }
-        
-  
-        
         $add->save();
 
         return redirect()->back()->with('message', 'Categoría Agregada');
@@ -69,9 +63,15 @@ class CategoriesController extends Controller
 
     public function update(Request $request)
     {
+        $this->validate($request, [
+            'name'      => 'required',
+            'slug'      => 'required|unique:categories',
+            'parent' => 'nullable|numeric'
+        ]);
         $update = Categories::find($request->id);
 
         $update->name = htmlspecialchars($request->name);
+        $update->slug = htmlspecialchars($request->slug);
         $update->parent = $request->parent;
         $update->save();
 

@@ -264,12 +264,18 @@
                     <label >{{trans('file.Category')}}</label>
                     <div class="form-group-inner">
                          <div class="field-outer">
-                           <select name="category_id" class="form-control">
-                                <option>Elegir una categoría</option>
-                               @foreach ($categories as $category)
-                                <option value="{{$category->id}}">{{$category->name}}</option>                                   
-                               @endforeach
-                           </select>
+                            <select type="text" name="category_id" class="form-control">
+                                <option value="">None</option>
+                                @if($categories)
+                                    @foreach($categories as $category)
+                                        <?php $dash=''; ?>
+                                        <option value="{{$category->id}}">{{$category->name}}</option>
+                                        @if(count($category->subcategory))
+                                            @include('categories.subcategories',['subcategories' => $category->subcategory])
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </select>
                          </div>
                     </div>
                 </div>         

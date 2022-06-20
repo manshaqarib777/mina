@@ -102,6 +102,10 @@ return [
 	"SMS" => "SMS",
 	"Site Logo" => "Site Logo",
 	"Notification Mobile" => "Notification Mobile",
+	"slug" => "Slug",
+	"Parent Category" => "Parent Category",
+	"Category" => "Category",
+	"Vew Documents" => "Vew Documents",
     
 ];
 ?>

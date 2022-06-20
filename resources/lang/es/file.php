@@ -173,7 +173,10 @@ return [
     "Site Logo" => "Logo del sitio",
     
     "Notification Mobile" => "Notificación móvil",
-    
+    "slug" => "Slug",
+	"Parent Category" => "Parent Category",
+	"Category" => "Category",
+	"Vew Documents" => "Vew Documents",
 
 ];
 

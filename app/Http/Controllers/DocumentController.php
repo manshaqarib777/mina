@@ -25,39 +25,36 @@ class DocumentController extends Controller
     	$userData = DB::table('users')->where('id', Auth::id())->first();
         $roleData = DB::table('roles')->where('id', $userData->role_id)->first();
     
-    if ($roleData->id == '4' || $roleData->id == '6') {
+        if ($roleData->id == '4' || $roleData->id == '6') 
+        {
             $ldms_documents_all = Document::all();
             $todayDate = date('Y-m-d');
-            $ldms_expired_documents_all = DB::table('documents')
-                                    ->where('expired_date', '<', $todayDate)->get();
-
-                         $interval = date('Y-m-d', strtotime('+30 days'));
-            $ldms_close_expired_documents_all = DB::table('documents')
-                        ->where(
-                            [
-                            ['expired_date', '>=', $todayDate],
-                            ['expired_date', '<' , $interval]
-                            ]
-                        )->get();
- 
-       if ($request->filter_start_date != '') {
+            $ldms_expired_documents_all = DB::table('documents')->where('expired_date', '<', $todayDate)->get();
+            $interval = date('Y-m-d', strtotime('+30 days'));
+            $ldms_close_expired_documents_all = DB::table('documents')->where([['expired_date', '>=', $todayDate],['expired_date', '<' , $interval]])->get(); 
+            if ($request->filter_start_date != '') 
+            {
                 $start_date = Carbon::parse($request->filter_start_date)->format('Y-m-d') ?? '';
                 $end_date = Carbon::parse($request->filter_end_date)->format('Y-m-d') ?? '';
                 $document_list = DB::table('documents')->whereBetween('create_date', [$start_date, $end_date])->get();
                 $ldms_total_documents_number = count($document_list);
+                if (count($document_list)==0) {
+                    return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
+                }
                 
-              if (count($document_list)==0) {
-                return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
             }
-                
-            }
-            else {
-                $document_list = DB::table('documents')->get();
+            elseif($request->filter_category_id != '')
+            {
+                $document_list = DB::table('documents')->where('category_id', $request->filter_category_id)->get();
                 $ldms_total_documents_number = count($document_list);
-             
-            //$ldms_total_documents_number = count($ldms_documents_all);
-           // $document_list = Document::all();
-             
+                if (count($document_list)==0) {
+                    return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
+                }
+            }
+            else 
+            {
+                $document_list = DB::table('documents')->get();
+                $ldms_total_documents_number = count($document_list); 
             }    
    
             
@@ -66,51 +63,41 @@ class DocumentController extends Controller
              $categories = Categories::all();
 
             return view('document.create', compact('ldms_documents_all', 'ldms_expired_documents_all', 'ldms_close_expired_documents_all', 'ldms_total_documents_number', 'document_list','ldms_categoria','categories'));
-        } else {
+        } 
+        else 
+        {
             $ldms_documents_all = DB::table('documents')->where('role_id', $userData->role_id)->get();
             $todayDate = date('Y-m-d');
-            $ldms_expired_documents_all = DB::table('documents')
-                                    ->where(
-                                        [
-                                        ['role_id', '=' ,$userData->role_id],
-                                        ['expired_date', '<', $todayDate],
-                                        ]
-                                    )->get();
-
-                         $interval = date('Y-m-d', strtotime('+30 days'));
-            $ldms_close_expired_documents_all = DB::table('documents')
-                        ->where(
-                            [
-                            ['role_id', $userData->role_id],
-                            ['expired_date', '>=', $todayDate],
-                            ['expired_date', '<' , $interval]
-                            ]
-                        )->get();
-             
-              if ($request->filter_start_date != '') {
+            $ldms_expired_documents_all = DB::table('documents')->where([['role_id', '=' ,$userData->role_id],['expired_date', '<', $todayDate]])->get();
+            $interval = date('Y-m-d', strtotime('+30 days'));
+            $ldms_close_expired_documents_all = DB::table('documents')->where([['role_id', $userData->role_id],['expired_date', '>=', $todayDate],['expired_date', '<' , $interval]])->get();
+            if ($request->filter_start_date != '') 
+            {
                 $start_date = Carbon::parse($request->filter_start_date)->format('Y-m-d') ?? '';
                 $end_date = Carbon::parse($request->filter_end_date)->format('Y-m-d') ?? '';
                 $document_list = DB::table('documents')->whereBetween('create_date', [$start_date, $end_date])->where('role_id', $userData->role_id)->get();
                 $ldms_total_documents_number = count($document_list);
-                
-                              if (count($document_list)==0) {
-                return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
+                if (count($document_list)==0) {
+                    return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
+                }
             }
-                
+            elseif($request->filter_category_id != '')
+            {
+                $document_list = DB::table('documents')->where('category_id', $request->filter_category_id)->get();
+                $ldms_total_documents_number = count($document_list);
+                if (count($document_list)==0) 
+                {
+                    return redirect()->back()->with('message1', 'No se encontraron documentos en esas fechas');
+                }
             }
-            else {
+            else 
+            {
                 $document_list = DB::table('documents')->where('role_id', $userData->role_id)->get();
                 $ldms_total_documents_number = count($document_list);
-            
-            //  $ldms_total_documents_number = count($ldms_documents_all);
-          //  $document_list = Document::where('role_id', $userData->role_id)->get();
-            
-            
+                //  $ldms_total_documents_number = count($ldms_documents_all);
+                //  $document_list = Document::where('role_id', $userData->role_id)->get();            
             }
-             
-           
-              $ldms_categoria = Categoria::pluck('categoria_name','id');
-            
+            $ldms_categoria = Categoria::pluck('categoria_name','id');
             $categories = Categories::all();
             return view('document.create', compact('ldms_documents_all', 'ldms_expired_documents_all', 'ldms_close_expired_documents_all', 'ldms_total_documents_number', 'document_list','ldms_categoria','categories'));
         }
